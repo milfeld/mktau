@@ -14,7 +14,9 @@ Requires executions of the mktau script (3/4 times) with arguments.
 ```shell
       $ cd; mkdir -p APPS; cd APPS    #create and go to an install directory
                                       # at TACC use $WORK (cd $WORK first)
-      $ git clone https://github.com/milfeld/mkmod
+                                      
+      $ wget  https://raw.github.com/milfeld/mktau/master/mktau    #get just mktau file
+      $ chmod 700 mktau                                            #make mktau executable
       
       $ mktau  prep         # downloads latest pdt or tau tar files"
       $ mktau  pdt          # untars and builds pdt (required for instrumentation)"
@@ -22,6 +24,7 @@ Requires executions of the mktau script (3/4 times) with arguments.
       $ mktau  module       # creates and sets up personal module (modulefile)"
       
       $# append "|& tee tau.log" to "mktau tau" for logging (similarly for others)
+      $# git clone https://github.com/milfeld/mktau   will download directory with mktau in it
 ```
 
 ## Code Access
@@ -29,11 +32,11 @@ To get access to the mkmod source code clone this repository:
 
     git clone https://github.com/milfeld/mktau
     
-### mkmod 0.9.1:
+### mktau 0.9.1:
     1 Sets LIBGL_ALWAYS_INDIRECT=1  for paraprof display back to Mac X
     2 Include TACC module help file
     
-### mkmod 0.9.0:
+### mktau 0.9.0:
     1 Designed to use intel 19.0.5 compiler (and its default MPI, impi).
     2 Change "comp_version=19.0.5" to particular version (at TACC)
     3 Execute "mktau" to get usage (mktau [prep | pdt | tau | module]
