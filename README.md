@@ -25,10 +25,20 @@ Requires executions of the mktau script (3/4 times) with arguments.
        mktau  prep         # downloads latest pdt or tau tar files"
        mktau  pdt          # untars and builds pdt (required for instrumentation)"
        mktau  tau          # untars and builds tau"
-       mktau  module       # creates and sets up personal module (modulefile)"
+       mktau  module       # creates and sets up personal my_tau module (modulefile)"
       
       # append "|& tee tau.log" to "mktau tau" for logging (similarly for others)
       # git clone https://github.com/milfeld/mktau   will download directory with mktau in it
+```
+
+## TEST
+
+On an interactive compute node (use idev at TACC or srun on non-TACC site):
+```shell
+       module load my_tau       # load up your personal tau module
+       cd $MY_TAU_EXM/mm        # cd to examples directory
+       make                     # makes mm executable
+       ibrun -np 24  matmult    # ibrun @tacc mpirun on non-TACC sites
 ```
 
 ## Code Access
