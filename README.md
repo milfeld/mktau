@@ -1,5 +1,5 @@
 # mktau
-install TAU in user space, and creates a modulefile
+Installs TAU in user space, and creates a modulefile
 
 ## Developers and Maintainers
 Kent Milfeld  (<mailto:milfeld@tacc.utexas.edu> include mktau in subject)
@@ -9,7 +9,7 @@ Kent Milfeld  (<mailto:milfeld@tacc.utexas.edu> include mktau in subject)
 
 ## Description
 
-Requires e executions of the mktau script
+Requires executions of the mktau script (3/4 times) with arguments.
 
 ```shell
       $ cd; mkdir -p APPS; cd APPS    #create and go to an install directory
@@ -20,6 +20,8 @@ Requires e executions of the mktau script
       $ mktau  pdt          # untars and builds pdt (required for instrumentation)"
       $ mktau  tau          # untars and builds tau"
       $ mktau  module       # creates and sets up personal module (modulefile)"
+      
+      $# append "|& tee tau.log" to "mktau tau" for logging (similarly for others)
 ```
 
 ## Code Access
@@ -28,12 +30,10 @@ To get access to the mkmod source code clone this repository:
     git clone https://github.com/milfeld/mktau
     
 ### mkmod 0.9.1:
-Features:
     1 Sets LIBGL_ALWAYS_INDIRECT=1  for paraprof display back to Mac X
     2 Include TACC module help file
     
 ### mkmod 0.9.0:
-Features:
     1 Designed to use intel 19.0.5 compiler (and its default MPI, impi).
     2 Change "comp_version=19.0.5" to particular version (at TACC)
     3 Execute "mktau" to get usage (mktau [prep | pdt | tau | module]
