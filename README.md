@@ -19,6 +19,7 @@ Requires executions of the mktau script (3/4 times) with arguments.
                                       
        wget  https://raw.github.com/milfeld/mktau/master/mktau        #get mktau file
        wget  https://raw.github.com/milfeld/mktau/master/mktau_utils  #get mktau_utils
+       wget  https://raw.github.com/milfeld/mktau/master/modules_help #get modulefile help
        chmod 700 mktau                                                #make mktau executable
       
        mktau  prep         # downloads latest pdt or tau tar files"
