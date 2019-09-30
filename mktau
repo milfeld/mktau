@@ -1,0 +1,168 @@
+#!/bin/bash
+#           Builds local version of TAU for users
+#  Compiler Requirements:  See comp_family and comp_version
+#
+#  The script will download the latest versions of Tau (and pdtoolkit)
+#  compile and install them in "this" directory.
+#  
+#  User must execute mktau 3 times:
+#
+#     mktau prep
+#     mktau pdt
+#     mktau tau
+
+#     mktau module  (optional, makes a module file for user)
+#     mktau cleanup (removes downloaded files)
+#
+#  Info:
+#      wget http://tau.uoregon.edu/ext.tgz
+#      wget http://www.cs.uoregon.edu/research/pdt
+#
+#  Ver 0.9.1 2019_09_29
+#  Ver 0.9.0 2019_07_31
+#
+#                                    author:  Kent Milfeld 2019_07_31
+#                              (C) 2018 University of Texas at Austin
+#                              MIT License
+
+DL_DIR=download
+
+#comp_family=gcc
+#comp_version=7.1.0
+#TAU_tag="-tag=gcc"
+
+comp_family=intel
+comp_version=19.0.5
+
+if [[ ! $1 =~ prep ]] && [[ ! $1 =~ pdt ]] && [[ ! $1 =~ tau ]] && [[ ! $1 =~ module ]]; then
+   echo "USAGE: $0 [ prep | pdt | tau | modulefile ]"
+   echo "          Execute in the following order:"
+   echo "            mktau \"prep pdt tau module\""
+   echo "          Execute individual modules (always do prep first, to get tar files, any other)"
+   echo "            mktau  prep # downloads pdt or tau tar files"
+   echo "            mktau  pdt  # untars and builds pdt"
+   echo "            mktau  tau  # untars and builds tau"
+   echo "            mktau  module  # creates a modulefile"
+   exit 0
+else
+   echo Working on $1
+fi
+
+
+BASE_DIR=`pwd`
+
+source mktau_utils
+
+  if   [[ $LMOD_FAMILY_COMPILER != $comp_family ]] || [[ $LMOD_FAMILY_COMPILER_VERSION != $comp_version ]] ; then
+     echo "  -> WARNING: This build must use the $comp_family compiler family and version number $comp_version."
+     echo "  ->         The $comp_family/$comp_version module will be loaded."
+     module load $comp_family/$comp_version
+  else
+     echo "  -> Using $comp_family compiler family and version number $comp_version for TAU."
+  fi
+
+  if   [[ $LMOD_FAMILY_MPI =~ [^[:space:]] ]] && [[ $LMOD_FAMILY_MPI_VERSION =~ [^[:space]]  ]] ; then
+     mpi_family=$LMOD_FAMILY_MPI
+     mpi_version=$LMOD_FAMILY_MPI_VERSION
+  fi
+
+
+if [[ $1 =~ prep ]]; then
+     mkdir -p $DL_DIR
+     cd       $DL_DIR
+     if [[ -f pdt.tgz ]]; then
+       echo "  -> pdt.tgz already exist."
+       echo "  -> Remove it, if you want re-download it."
+     else
+       wget http://tau.uoregon.edu/pdt.tgz
+     fi
+
+     if [[ -f tau.tgz ]]; then
+       echo "  -> tau.tgz already exist."
+       echo "  -> Remove it, if you want re-download it."
+     else
+       wget http://tau.uoregon.edu/tau.tgz
+     fi
+
+     cd ..
+     wget https://raw.githubusercontent.com/tacc/mkmod/master/bin/mkmod
+     wget https://raw.githubusercontent.com/tacc/mkmod/master/bin/mkmod_utils
+     chmod 700 mkmod*
+fi
+
+
+####
+#                 Pick up Versions number if not doing prep
+export PDT_VER=$( capture_version $DL_DIR/pdt.tgz )
+export TAU_VER=$( capture_version $DL_DIR/tau.tgz )
+echo "USING THESE VERSIONS: PDT_VER=$PDT_VER    TAU_VER=$TAU_VER"
+
+module load papi 2>/dev/null
+[[ $? == 0 ]] && export PAPI_VER=${TACC_PAPI_DIR##*/}
+
+
+
+
+if [[ $1 =~ pdt ]]; then
+
+     backup_2_next_no pdtoolkit-${PDT_VER} "_"
+     tar zxf $DL_DIR/pdt.tgz
+
+     cd pdtoolkit-${PDT_VER}
+     ./configure
+     make 2>&1 | tee log_pdt; make install 2>&1 | tee log_pdt_install
+fi
+
+if [[ $1 =~ tau ]]; then
+
+     backup_2_next_no tau-${TAU_VER} "_"
+     tar zxvf $DL_DIR/tau.tgz
+
+     PAPI=""
+     module load papi 2>/dev/null
+                             # Only if module worked and TACC env is set
+                             # Other sites, use appropriate variable for LIB
+     [[ $? == 0 ]] && [[ $TACC_PAPI_DIR =~ [^[:space:]] ]] && PAPI="-papi=$TACC_PAPI_DIR"
+
+     cd tau-${TAU_VER}
+     ./configure $TAU_tag \
+                 -c++=mpicxx -cc=mpicc -fortran=mpif90 \
+                 -pdt=$BASE_DIR/pdtoolkit-$PDT_VER $PAPI \
+                 -bfd=download -iowrapper -unwind=download -ompt=download 2>&1 | tee log_tau_config
+    #make install -j 4 2>&1 | tee log_tau_build
+     make install -j 4 2>&1 | tee log_tau_build
+fi
+
+if [[ $1 =~ module ]]; then
+
+     cp module_help $TOPDIR    # put the module help file where mkmod will find it
+
+     module load $comp_family/$comp_version
+
+     export VER=$( capture_version $DL_DIR/tau.tgz )
+     export NAME=tau
+     export TOPDIR=`pwd`/tau-$TAU_VER
+
+     module load papi
+     PAPI="-papi"
+
+     TAU=$TOPDIR/x86_64/lib
+
+ENV1="TAU=$TOPDIR/x86_64/lib"
+ENV2="TAU_MAKEFILE=$TAU/Makefile.tau-icpc-papi-ompt-tr4-mpi-pdt-openmp"  # intel mpi openmp
+ENV3="PAPI_PERFMON_EVENT_FILE=$TACC_PAPI_DIR/share/papi/papi_events.csv"
+ENV4="TAU_METRICS=GET_TIME_OF_DAY:PAPI_TOT_CYC:PAPI_L2_LDM"
+ENV5="TAU_PROFILE=1"
+ENV6="LIBGL_ALWAYS_INDIRECT=1"
+export ENV1 ENV2 ENV3 ENV4 ENV5 ENV6
+
+export TOPDIR_PATH_LIST="x86_64/bin"
+export      LDPATH_LIST="$TACC_PAPI_LIB:$TOPDIR/x86_lib/lib"
+
+     module load mkmod
+     mkmod
+    
+     # Fix so that TACC_TAU_BIN= .../x86_64/bin
+     # Fix so that TACC_TAU_LIB= .../x86_64/lib
+     # Fix so that prepend MANPATH $TACC_PAPI_DIR/man
+fi
