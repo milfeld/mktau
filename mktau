@@ -135,13 +135,13 @@ fi
 
 if [[ $1 =~ module ]]; then
 
-     cp modules_help $TOPDIR    # put the module help file where mkmod will find it
-
      module load $comp_family/$comp_version
 
      export VER=$( capture_version $DL_DIR/tau.tgz )
      export NAME=tau
      export TOPDIR=`pwd`/tau-$TAU_VER
+     
+     cp modules_help $TOPDIR    # put the module help file where mkmod will find it
 
      module load papi
      PAPI="-papi"
