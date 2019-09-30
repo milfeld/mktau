@@ -1,0 +1,85 @@
+capture_version() {
+#
+#  Capture version number from TAU pdt.tgz or tau.tgz
+#    Directory of 1st tar line give version number in directory name
+#    e.g. ... sameer/sameer     0 2017-11-06 12:59 ./pdtoolkit-3.25/
+#    e.g. ... sameer/sameer     0 2017-11-10 23:22 ./tau-2.27/
+#                                                  Kent 2/28/2018
+                         # get pdt directory line from tar file
+
+   line=$( tar -tzvf $1 | head -n 1 )
+
+                         # get pdt directory name
+
+   dir=$( echo $line | grep -Po '(pdtoolkit|tau)-\d.*[^/]' )
+
+                         # capture "digit" plus "period" + rest for version number
+
+   ver=$( echo $dir  | grep -Po '\d\..*' )
+  
+   echo $ver
+}
+
+backup_2_next_no(){
+
+  USAGE1="  -> USAGE:  backup_2_next_no <base_name> <delimiter>"
+  USAGE2="  ->         base_name required, delimiter default is \".\""
+#
+#  base_name can be a directory or file (relative or full path)
+#
+#  backup_2_next_no checks for the file or directory (base_name).  
+#
+#  If it exits it is moved to base_name<delimiter><next_number>.
+#
+#  e.g.  backup_2_next_no dater "_"
+#        if dater exists, then dater is moved to dater_1
+#        if dater and dater_1 exist, then dater is moved to dater_2
+#
+#  where delimiter is the second argument (usually "." or "_")
+#  If it doesn't exist, no action is performed. 
+
+   CMD=""           #Set MY_BACKUP_DEBUG to echo (instead of executing) backup
+   [[ ! -z "$MY_BACKUP_DEBUG" ]] && CMD="echo "
+   
+   delimiter="."    #default delimiter
+   
+   if [[ ! $1 ]]; then
+      echo "$USAGE1"; echo "$USAGE2"
+      exit
+   fi
+   
+   base_name=$1
+   [[ ! -z "$2" ]] && delimiter=$2
+   
+   echo "  -> Backup is using default delimiter: \"$delimiter\""
+   
+           #Determine if base file|directory exists
+   if [[ -d $base_name ]]; then
+   
+           #Determine if base file|directory exists
+      if [[  -d ${base_name}${delimiter}1 ]]; then
+   
+                # Get list of of existing files|directories
+         max=0
+         list=( `ls -d ${base_name}${delimiter}[0-9]*` )
+                # Find one with largers number
+                  for i in "${list[@]}"; do
+                       no=$( echo $i | grep -Po '\d+$')
+                       [[ $max < $no ]] && max=$no
+                  done
+                  next_no=$(( $max + 1 ))
+      else
+         next_no=1
+      fi
+   
+           #Now perform command to create file|directory:
+   
+      echo "  -> Backup operation: mv ${base_name} ${base_name}${delimiter}$next_no"
+   
+      $CMD mv ${base_name} ${base_name}${delimiter}$next_no
+   
+   else
+      echo "  -> Backup operation: Non Required -- $base_name does not exist."
+   fi
+   
+}
