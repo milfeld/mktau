@@ -12,20 +12,22 @@ Kent Milfeld  (<mailto:milfeld@tacc.utexas.edu> include mktau in subject)
 Requires executions of the mktau script (3/4 times) with arguments.
 
 ```shell
-      $ cd; mkdir -p APPS; cd APPS    #create and go to an install directory
+       #you can cut and paste the instructions you need:
+       
+       cd; mkdir -p APPS; cd APPS    #create and go to an install directory
                                       # at TACC use $WORK (cd $WORK first)
                                       
-      $ wget  https://raw.github.com/milfeld/mktau/master/mktau        #get mktau file
-      $ wget  https://raw.github.com/milfeld/mktau/master/mktau_utils  #get mktau_utils
-      $ chmod 700 mktau                                                #make mktau executable
+       wget  https://raw.github.com/milfeld/mktau/master/mktau        #get mktau file
+       wget  https://raw.github.com/milfeld/mktau/master/mktau_utils  #get mktau_utils
+       chmod 700 mktau                                                #make mktau executable
       
-      $ mktau  prep         # downloads latest pdt or tau tar files"
-      $ mktau  pdt          # untars and builds pdt (required for instrumentation)"
-      $ mktau  tau          # untars and builds tau"
-      $ mktau  module       # creates and sets up personal module (modulefile)"
+       mktau  prep         # downloads latest pdt or tau tar files"
+       mktau  pdt          # untars and builds pdt (required for instrumentation)"
+       mktau  tau          # untars and builds tau"
+       mktau  module       # creates and sets up personal module (modulefile)"
       
-      $# append "|& tee tau.log" to "mktau tau" for logging (similarly for others)
-      $# git clone https://github.com/milfeld/mktau   will download directory with mktau in it
+      # append "|& tee tau.log" to "mktau tau" for logging (similarly for others)
+      # git clone https://github.com/milfeld/mktau   will download directory with mktau in it
 ```
 
 ## Code Access
