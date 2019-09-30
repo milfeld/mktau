@@ -1,0 +1,78 @@
+The tau module defines the following standard environment variables:
+TACC_TAU_DIR and TAU, TACC_TAU_BIN, TACC_TAU_LIB, and TACC_TAU_DOC 
+TACC_TAU_EXM, TACC_TAU_TOL for the location of the TAU distribution, 
+binaries, libraries, documents, examples and tools, respectively.  
+
+It also defines defaults: 
+   TAU_PROFILE=1, 
+   TAU_MAKEFILE=${TAU_MAKEFILE},
+   TAU_METRICS=${TAU_METRICS}.
+
+TAU_MAKEFILE sets the tools (pdt), compilers (intel) and parallel 
+paradigm (serial, or mpi and/or openmp) to be used in the instrumentation.
+
+For TAU ${TAU_VER} it is only necessary to load up the TAU
+${TAU_VER} environment. Advanced users may need to load up
+papi/${PAPI_VER} and pdtoolkit/${PDT_VER} for library and command access.
+For normal usage use the defaults: just load up tau, recompile, and run.
+See the User Guide and Reference pdf files in the \$TACC_TAU_DOC directory. 
+Man pages are available for commands (e.g. paraprof, tauf90, etc.),
+and the application program interface. 
+
+Load command:
+
+    module load tau
+
+    or
+
+    module load tau/${TAU_VER}
+
+Java is used in the TAU gui, paraprof, and is available in the default
+environment.
+
+The TAU makefile is used by the Tau compiler wrappers shown below. 
+The full path to this makefile is specified in the TAU_MAKEFILE 
+environement variable. It has been set for you.
+
+The makefile is: ${TAU_MAKEFILE}, 
+and has component names that describe features of the build:
+
+    Intel Compilers (icpc)
+    MPI             (mpi)
+    OMP             (openmp)
+    OpenMP Tool     (ompt)   openmp events
+    PAPI            (papi)   now included by default
+    PDtoolkit       (pdt)    now included by default
+
+The default TAU Makefile works for pure MPI, pure OpenMP,
+and hybrid applications.  For pure OpenMP applications set
+
+     export TAU_SET_NODE=0   #bash shell 
+
+Otherwise you will get a warning to set the variable, and no data.
+
+For advanced users there may be other TAU Makefiles in 
+
+    \$TACC_TAU_LIB
+
+which support advanced features.  Most users have no need for these.
+See component names.
+
+To compile your code with TAU, use one of the TAU compiler wrappers:
+
+   tau_f90.sh
+   tau_cc.sh
+   tau_cxx.sh
+
+for constructing an instrumented code (instead of mpif90, mpicc, etc.).
+
+E.g.  tau_f90.sh mpihello.f90, tau_cc.sh mpihello.c, etc.
+
+These may also be used in makefiles, using macro definitions:
+
+E.g.  F90=tau_f90.sh, CC=tau_cc.sh, Cxx=tau_cxx.sh.
+
+-- To enable callpath information collection set TAU_CALLPATH to 1.
+-- To enable trace collection set the environmental variable TAU_TRACE to 1.
+
+Version ${TAU_VER}
