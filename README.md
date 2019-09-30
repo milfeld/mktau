@@ -15,8 +15,9 @@ Requires executions of the mktau script (3/4 times) with arguments.
       $ cd; mkdir -p APPS; cd APPS    #create and go to an install directory
                                       # at TACC use $WORK (cd $WORK first)
                                       
-      $ wget  https://raw.github.com/milfeld/mktau/master/mktau    #get just mktau file
-      $ chmod 700 mktau                                            #make mktau executable
+      $ wget  https://raw.github.com/milfeld/mktau/master/mktau        #get mktau file
+      $ wget  https://raw.github.com/milfeld/mktau/master/mktau_utils  #get mktau_utils
+      $ chmod 700 mktau                                                #make mktau executable
       
       $ mktau  prep         # downloads latest pdt or tau tar files"
       $ mktau  pdt          # untars and builds pdt (required for instrumentation)"
